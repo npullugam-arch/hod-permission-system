@@ -1,10 +1,12 @@
 package com.college.hod.service.impl;
 
 import com.college.hod.entity.Request;
+import com.college.hod.entity.Student;
 import com.college.hod.entity.User;
 import com.college.hod.enums.RequestStatus;
 import com.college.hod.enums.Role;
 import com.college.hod.repository.RequestRepository;
+import com.college.hod.repository.StudentRepository;
 import com.college.hod.repository.UserRepository;
 import com.college.hod.service.RequestService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +23,9 @@ public class RequestServiceImpl implements RequestService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private StudentRepository studentRepository;
 
     @Override
     public Request createRequest(Request request) {
@@ -40,6 +45,9 @@ public class RequestServiceImpl implements RequestService {
             throw new RuntimeException("Selected user is not an HOD");
         }
 
+        Student student = resolveStudent(request.getStudent().getId());
+
+        request.setStudent(student);
         request.setHod(hodUser);
         request.setStatus(RequestStatus.PENDING);
         request.setRequestDate(LocalDate.now());
@@ -73,7 +81,8 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     public List<Request> getRequestsByStudent(Long studentId) {
-        return requestRepository.findByStudentId(studentId);
+        Student student = resolveStudent(studentId);
+        return requestRepository.findByStudentId(student.getId());
     }
 
     @Override
@@ -89,5 +98,27 @@ public class RequestServiceImpl implements RequestService {
     @Override
     public List<User> getAllHods() {
         return userRepository.findByRole(Role.HOD);
+    }
+
+    private Student resolveStudent(Long studentOrUserId) {
+        return studentRepository.findById(studentOrUserId)
+                .or(() -> studentRepository.findByUserId(studentOrUserId))
+                .orElseGet(() -> createStudentFromUser(studentOrUserId));
+    }
+
+    private Student createStudentFromUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Student not found"));
+
+        if (user.getRole() != Role.STUDENT) {
+            throw new RuntimeException("Student not found");
+        }
+
+        Student student = new Student();
+        student.setName(user.getUsername());
+        student.setEmail(user.getUsername());
+        student.setUser(user);
+
+        return studentRepository.save(student);
     }
 }

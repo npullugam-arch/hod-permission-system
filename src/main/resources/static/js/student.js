@@ -74,7 +74,7 @@ function createRequest() {
         startDate: startDate,
         endDate: endDate,
         student: { id: user.id },
-        hod: { id: hodId }
+        hod: { id: Number(hodId) }
     };
 
     fetch("http://localhost:8080/request/create", {
@@ -86,7 +86,9 @@ function createRequest() {
     })
     .then(res => {
         if (!res.ok) {
-            throw new Error("Failed to create request");
+            return res.text().then(message => {
+                throw new Error(message || "Failed to create request");
+            });
         }
         return res.json();
     })
@@ -97,7 +99,7 @@ function createRequest() {
     })
     .catch(err => {
         console.error(err);
-        alert("Error while submitting request.");
+        alert(err.message || "Error while submitting request.");
     });
 }
 
