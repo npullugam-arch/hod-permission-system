@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>HOD Dashboard</title>
+    <link rel="stylesheet" href="css/hod.css">
+</head>
+<body>
+
+<div class="container">
+
+    <h1>HOD Dashboard</h1>
+
+    <!-- Summary Cards -->
+    <div class="cards">
+        <div class="card">
+            <h3>Total Requests</h3>
+            <p id="total"></p>
+        </div>
+        <div class="card">
+            <h3>Pending</h3>
+            <p id="pending"></p>
+        </div>
+        <div class="card">
+            <h3>Approved</h3>
+            <p id="approved"></p>
+        </div>
+        <div class="card">
+            <h3>Rejected</h3>
+            <p id="rejected"></p>
+        </div>
+    </div>
+
+    <!-- Requests Table -->
+    <div class="table-card">
+        <h2>Student Requests</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Student</th>
+                    <th>Reason</th>
+                    <th>Status</th>
+                    <th>End Date</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="requestTable"></tbody>
+        </table>
+    </div>
+
+</div>
+
+<script src="js/hod.js"></script>
+</body>
+</html>
