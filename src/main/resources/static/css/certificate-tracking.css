@@ -65,16 +65,30 @@ th {
     letter-spacing: 0.4px;
 }
 
-.file-input {
-    width: 100%;
-    min-width: 190px;
-    padding: 10px 12px;
-    border: 1px solid #dbe2ea;
-    border-radius: 10px;
-    background: #f8fafc;
+.status-badge {
+    display: inline-block;
+    padding: 7px 12px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
 }
 
-.upload-btn {
+.status-badge.pending {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.status-badge.overdue {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.status-badge.submitted {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.remind-btn {
     background: #2563eb;
     color: #fff;
     border: none;
@@ -84,18 +98,8 @@ th {
     font-weight: 700;
 }
 
-.upload-btn:hover {
+.remind-btn:hover {
     background: #1d4ed8;
-}
-
-.uploaded-badge {
-    display: inline-block;
-    padding: 7px 12px;
-    border-radius: 999px;
-    font-size: 13px;
-    font-weight: 700;
-    background: #dcfce7;
-    color: #15803d;
 }
 
 .empty-row {
@@ -104,57 +108,48 @@ th {
     padding: 24px;
 }
 
-
-.hidden-file-input {
-    display: none;
-}
-
-.choose-btn,
-.upload-btn {
+.view-btn,
+.verify-btn,
+.remind-btn {
+    display: inline-block;
     padding: 8px 14px;
+    margin: 2px;
     border: none;
     border-radius: 8px;
+    text-decoration: none;
     cursor: pointer;
-    margin: 2px;
+    font-size: 14px;
     font-weight: 600;
 }
 
-.choose-btn {
-    background: #e2e8f0;
-    color: #1e293b;
-}
-
-.upload-btn {
+.view-btn {
     background: #2563eb;
-    color: white;
+    color: #ffffff;
 }
 
-.uploaded-badge {
-    display: inline-block;
-    padding: 6px 12px;
+.view-btn:hover {
+    opacity: 0.9;
+}
+
+.verify-btn {
+    background: #16a34a;
+    color: #ffffff;
+}
+
+.verify-btn:hover {
+    opacity: 0.9;
+}
+
+.remind-btn {
+    background: #f59e0b;
+    color: #ffffff;
+}
+
+.remind-btn:hover {
+    opacity: 0.9;
+}
+
+.status-badge.verified {
     background: #dcfce7;
     color: #166534;
-    border-radius: 999px;
-    font-size: 13px;
-    font-weight: 600;
-}
-
-.view-link {
-    color: #2563eb;
-    text-decoration: none;
-    font-weight: 600;
-}
-
-.view-link:hover {
-    text-decoration: underline;
-}
-
-.file-name {
-    margin-top: 6px;
-    font-size: 13px;
-    color: #475569;
-}
-
-.no-file {
-    color: #64748b;
 }

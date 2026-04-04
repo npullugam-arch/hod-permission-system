@@ -5,80 +5,117 @@ if (!user) {
 }
 
 window.onload = function () {
-    loadRequests();
+    setHodInfo();
+    loadDashboardCounts();
+    showDashboard();
 };
 
-// Load all requests for HOD
-function loadRequests() {
+function setHodInfo() {
+    const hodNameEl = document.getElementById("hodName");
+    const userInitialEl = document.getElementById("userInitial");
 
-    fetch(`http://localhost:8080/hod/${user.id}/requests`)
-    .then(res => res.json())
-    .then(data => {
+    if (hodNameEl) {
+        hodNameEl.textContent = user.username || "HOD";
+    }
 
-        const table = document.getElementById("requestTable");
-        table.innerHTML = "";
+    if (userInitialEl) {
+        userInitialEl.textContent = (user.username || "H").charAt(0).toUpperCase();
+    }
+}
 
-        let total = data.length;
-        let pending = 0, approved = 0, rejected = 0;
+function setActiveNav(clickedItem) {
+    document.querySelectorAll(".nav-item").forEach(item => {
+        item.classList.remove("active");
+    });
 
-        data.forEach(req => {
+    if (clickedItem) {
+        clickedItem.classList.add("active");
+    }
+}
 
-            if (req.status === "PENDING") pending++;
-            else if (req.status === "APPROVED") approved++;
-            else rejected++;
+function showDashboard(event) {
+    if (event) {
+        event.preventDefault();
+        setActiveNav(event.currentTarget);
+    } else {
+        const dashboardNav = document.querySelector('.nav-item[data-page="dashboard"]');
+        if (dashboardNav) {
+            setActiveNav(dashboardNav);
+        }
+    }
 
-            let statusClass = "";
-            if (req.status === "APPROVED") statusClass = "approved";
-            else if (req.status === "PENDING") statusClass = "pending";
-            else statusClass = "rejected";
+    document.getElementById("pageTitle").textContent = "Dashboard";
+    document.getElementById("pageSubtitle").textContent = "Overview of requests and certificate submissions.";
 
-            const row = `
-                <tr>
-                    <td>${req.student ? req.student.name : "N/A"}</td>
-                    <td>${req.reason}</td>
-                    <td class="${statusClass}">${req.status}</td>
-                    <td>${req.endDate}</td>
-                    <td>
-                        ${req.status === "PENDING" ? `
-                            <button class="approve" onclick="approve(${req.id})">Approve</button>
-                            <button class="reject" onclick="reject(${req.id})">Reject</button>
-                        ` : "—"}
-                    </td>
-                </tr>
-            `;
+    document.getElementById("dashboardSection").classList.remove("hidden");
+    document.getElementById("iframeSection").classList.add("hidden");
+    document.getElementById("contentFrame").src = "";
 
-            table.innerHTML += row;
+    loadDashboardCounts();
+}
+
+function loadPage(event, pageUrl, title) {
+    event.preventDefault();
+    setActiveNav(event.currentTarget);
+
+    document.getElementById("pageTitle").textContent = title;
+    document.getElementById("pageSubtitle").textContent = "Manage this section from the right panel.";
+
+    document.getElementById("dashboardSection").classList.add("hidden");
+    document.getElementById("iframeSection").classList.remove("hidden");
+
+    const frame = document.getElementById("contentFrame");
+    const resolvedPageUrl = new URL(pageUrl, window.location.href);
+
+    frame.onerror = function () {
+        alert("Unable to load " + title + " right now.");
+    };
+
+    frame.src = resolvedPageUrl.pathname + "?t=" + new Date().getTime();
+}
+
+function loadDashboardCounts() {
+    fetch(`/hod/${user.id}/requests`)
+        .then(res => {
+            if (!res.ok) {
+                throw new Error("Failed to load requests");
+            }
+            return res.json();
+        })
+        .then(data => {
+            let newCount = 0;
+            let certificatePendingCount = 0;
+            let approvedCount = 0;
+            let rejectedCount = 0;
+
+            data.forEach(req => {
+                if (req.status === "PENDING") {
+                    newCount++;
+                } else if (req.status === "APPROVED") {
+                    approvedCount++;
+                    if (!req.certificate) {
+                        certificatePendingCount++;
+                    }
+                } else if (req.status === "REJECTED") {
+                    rejectedCount++;
+                }
+            });
+
+            document.getElementById("newCount").textContent = newCount;
+            document.getElementById("certificatePendingCount").textContent = certificatePendingCount;
+            document.getElementById("approvedCount").textContent = approvedCount;
+            document.getElementById("rejectedCount").textContent = rejectedCount;
+        })
+        .catch(err => {
+            console.error(err);
+            document.getElementById("newCount").textContent = "0";
+            document.getElementById("certificatePendingCount").textContent = "0";
+            document.getElementById("approvedCount").textContent = "0";
+            document.getElementById("rejectedCount").textContent = "0";
         });
-
-        // Update cards
-        document.getElementById("total").innerText = total;
-        document.getElementById("pending").innerText = pending;
-        document.getElementById("approved").innerText = approved;
-        document.getElementById("rejected").innerText = rejected;
-
-    });
 }
 
-// Approve request
-function approve(id) {
-    fetch(`http://localhost:8080/request/approve/${id}`, {
-        method: "POST"
-    })
-    .then(res => res.json())
-    .then(() => {
-        alert("Approved!");
-        loadRequests();
-    });
-}
-
-// Reject request
-function reject(id) {
-    fetch(`http://localhost:8080/request/reject/${id}`, {
-        method: "POST"
-    })
-    .then(res => res.json())
-    .then(() => {
-        alert("Rejected!");
-        loadRequests();
-    });
+function logout() {
+    localStorage.removeItem("user");
+    window.location.href = "index.html";
 }

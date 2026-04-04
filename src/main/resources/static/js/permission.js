@@ -9,7 +9,7 @@ window.onload = function () {
 };
 
 function loadHods() {
-    fetch("http://localhost:8080/request/hods")
+    fetch("/request/hods")
         .then(res => {
             if (!res.ok) {
                 throw new Error("Failed to load HOD list");
@@ -61,7 +61,7 @@ function createRequest() {
         hod: { id: Number(hodId) }
     };
 
-    fetch("http://localhost:8080/request/create", {
+    fetch("/request/create", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"

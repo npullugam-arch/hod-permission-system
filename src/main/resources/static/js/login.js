@@ -6,7 +6,7 @@ form.addEventListener("submit", function (e) {
     const username = document.getElementById("username").value;
     const password = document.getElementById("password").value;
 
-    fetch("http://localhost:8080/auth/login", {
+    fetch("/auth/login", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -38,6 +38,9 @@ form.addEventListener("submit", function (e) {
         }
     })
     .catch(error => {
-        document.getElementById("errorMsg").innerText = error.message;
+        document.getElementById("errorMsg").innerText =
+            error.message === "Failed to fetch"
+                ? "Unable to reach the server. Please check that the app is running and the ngrok URL points to this server."
+                : error.message;
     });
 });

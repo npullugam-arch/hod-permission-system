@@ -1,10 +1,11 @@
 package com.college.hod.service;
 
 import com.college.hod.entity.Certificate;
+import org.springframework.web.multipart.MultipartFile;
 
 public interface CertificateService {
 
-    Certificate uploadCertificate(Long requestId, String filePath);
+    Certificate uploadCertificate(Long requestId, MultipartFile file);
 
     Certificate verifyCertificate(Long certificateId);
 }

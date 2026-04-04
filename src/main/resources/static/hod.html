@@ -1,55 +1,110 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>HOD Dashboard</title>
-    <link rel="stylesheet" href="css/hod.css">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EventPass - HOD Dashboard</title>
+    <link rel="stylesheet" href="css/hod.css" />
 </head>
 <body>
+    <div class="app-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-icon">EP</div>
+                <div>
+                    <h2>EventPass</h2>
+                    <p>HOD Portal</p>
+                </div>
+            </div>
 
-<div class="container">
+            <div class="menu-title">MAIN MENU</div>
+            <nav class="nav-menu">
+                <a href="#" class="nav-item active" data-page="dashboard" onclick="showDashboard(event)">Dashboard</a>
+                <a href="#" class="nav-item" data-page="pending" onclick="loadPage(event, 'pending-request.html', 'Pending Requests')">Pending Requests</a>
+                <a href="#" class="nav-item" data-page="tracking" onclick="loadPage(event, 'certificate-tracking.html', 'Certificate Tracking')">Certificate Tracking</a>
+                <a href="#" class="nav-item" data-page="reminders" onclick="loadPage(event, 'reminders.html', 'Reminders')">Reminders</a>
+            </nav>
 
-    <h1>HOD Dashboard</h1>
+            <div class="menu-title">ACCOUNT</div>
+            <nav class="nav-menu">
+                <a href="#" class="nav-item">Profile</a>
+                <a href="#" class="nav-item" onclick="logout()">Logout</a>
+            </nav>
+        </aside>
 
-    <!-- Summary Cards -->
-    <div class="cards">
-        <div class="card">
-            <h3>Total Requests</h3>
-            <p id="total"></p>
-        </div>
-        <div class="card">
-            <h3>Pending</h3>
-            <p id="pending"></p>
-        </div>
-        <div class="card">
-            <h3>Approved</h3>
-            <p id="approved"></p>
-        </div>
-        <div class="card">
-            <h3>Rejected</h3>
-            <p id="rejected"></p>
-        </div>
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="topbar">
+                <div>
+                    <h1 id="pageTitle">Dashboard</h1>
+                    <p id="pageSubtitle">Overview of requests and certificate submissions.</p>
+                </div>
+
+                <div class="user-box">
+                    <div class="user-avatar" id="userInitial">H</div>
+                    <div>
+                        <div class="user-name" id="hodName">HOD</div>
+                        <div class="user-role">Head of Department</div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard -->
+            <section id="dashboardSection">
+                <section class="stats-grid">
+                    <div class="stat-card blue">
+                        <div class="stat-icon">📥</div>
+                        <div>
+                            <h3 id="newCount">0</h3>
+                            <p>New Requests</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card orange">
+                        <div class="stat-icon">⏳</div>
+                        <div>
+                            <h3 id="certificatePendingCount">0</h3>
+                            <p>Pending Certificates</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card green">
+                        <div class="stat-icon">✔</div>
+                        <div>
+                            <h3 id="approvedCount">0</h3>
+                            <p>Approved</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card red">
+                        <div class="stat-icon">✖</div>
+                        <div>
+                            <h3 id="rejectedCount">0</h3>
+                            <p>Rejected</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="content-card">
+                    <div class="card-header">
+                        <h2>HOD Dashboard</h2>
+                    </div>
+                    <p class="dashboard-note">
+                        Use the left menu to review pending requests, track certificate submissions, and send reminders.
+                    </p>
+                </section>
+            </section>
+
+            <!-- Iframe Section -->
+            <section id="iframeSection" class="iframe-section hidden">
+                <div class="frame-card">
+                    <iframe id="contentFrame" src="" title="HOD Content"></iframe>
+                </div>
+            </section>
+        </main>
     </div>
 
-    <!-- Requests Table -->
-    <div class="table-card">
-        <h2>Student Requests</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Student</th>
-                    <th>Reason</th>
-                    <th>Status</th>
-                    <th>End Date</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody id="requestTable"></tbody>
-        </table>
-    </div>
-
-</div>
-
-<script src="js/hod.js"></script>
+    <script src="js/hod.js"></script>
 </body>
 </html>

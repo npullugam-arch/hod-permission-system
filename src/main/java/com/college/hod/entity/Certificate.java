@@ -1,5 +1,6 @@
 package com.college.hod.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 import com.college.hod.enums.CertificateStatus;
@@ -9,6 +10,7 @@ import com.college.hod.enums.CertificateStatus;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "certificate")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Certificate {
 
     @Id
@@ -25,5 +27,8 @@ public class Certificate {
     // Each certificate belongs to one request
     @OneToOne
     @JoinColumn(name = "request_id")
+    @JsonIgnoreProperties({"certificate", "student", "hod"})
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Request request;
 }

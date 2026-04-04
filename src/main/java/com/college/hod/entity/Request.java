@@ -1,5 +1,6 @@
 package com.college.hod.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDate;
@@ -10,6 +11,7 @@ import com.college.hod.enums.RequestStatus;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "request")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Request {
 
     @Id
@@ -39,12 +41,21 @@ public class Request {
 
     @ManyToOne
     @JoinColumn(name = "student_id")
+    @JsonIgnoreProperties({"user", "hod"})
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Student student;
 
     @ManyToOne
     @JoinColumn(name = "hod_id")
+    @JsonIgnoreProperties({"password"})
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private User hod;
 
     @OneToOne(mappedBy = "request")
+    @JsonIgnoreProperties({"request"})
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Certificate certificate;
 }

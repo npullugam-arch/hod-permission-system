@@ -75,7 +75,7 @@ function loadPage(event, pageUrl, title) {
 }
 
 function loadDashboardCounts() {
-    fetch(`http://localhost:8080/request/student/${user.id}`)
+    fetch(`/request/student/${user.id}`)
         .then(res => {
             if (!res.ok) {
                 throw new Error("Failed to load dashboard data");
