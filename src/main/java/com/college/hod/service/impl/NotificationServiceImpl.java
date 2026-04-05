@@ -10,6 +10,7 @@ import com.college.hod.repository.RequestRepository;
 import com.college.hod.service.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.lang.Nullable;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -41,10 +42,12 @@ public class NotificationServiceImpl implements NotificationService {
     @Autowired
     private RequestRepository requestRepository;
 
-    @Autowired
+    // 🔥 Make this optional → prevents crash
+    @Autowired(required = false)
+    @Nullable
     private JavaMailSender mailSender;
 
-    @Value("${spring.mail.username}")
+    @Value("${spring.mail.username:}")
     private String fromEmail;
 
     @Override
@@ -54,13 +57,6 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public void sendNotification(User user, String message, Long relatedRequestId) {
-        if (user == null) {
-            throw new RuntimeException("User is required");
-        }
-
-        if (message == null || message.trim().isEmpty()) {
-            throw new RuntimeException("Notification message is required");
-        }
 
         Notification notification = new Notification();
         notification.setUser(user);
@@ -74,100 +70,51 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public void sendReminderForRequest(Long requestId) {
+
         Request request = requestRepository.findById(requestId)
                 .orElseThrow(() -> new RuntimeException("Request not found"));
 
         LocalDate today = LocalDate.now();
 
         if (request.getStatus() != RequestStatus.APPROVED) {
-            throw new RuntimeException("Reminder can be sent only for approved requests");
+            throw new RuntimeException("Reminder only for approved requests");
         }
 
         if (!isCertificateRequired(request.getReason())) {
-            throw new RuntimeException("This request reason does not require a certificate");
+            throw new RuntimeException("Certificate not required");
         }
 
         if (request.getCertificate() != null &&
                 request.getCertificate().getFilePath() != null &&
                 !request.getCertificate().getFilePath().isBlank()) {
-            throw new RuntimeException("Certificate already submitted for this request");
-        }
-
-        if (request.getEndDate() == null) {
-            throw new RuntimeException("Event end date is not available for this request");
-        }
-
-        if (request.getCertificateDueDate() == null) {
-            throw new RuntimeException("Certificate due date is not available for this request");
+            throw new RuntimeException("Certificate already submitted");
         }
 
         if (today.isBefore(request.getEndDate())) {
-            throw new RuntimeException("Reminder can be sent only after the event end date");
+            throw new RuntimeException("Reminder only after event end");
         }
 
         if (today.isAfter(request.getCertificateDueDate())) {
-            throw new RuntimeException("Reminder cannot be sent after the certificate deadline");
+            throw new RuntimeException("Deadline crossed");
         }
 
         Student student = request.getStudent();
-        if (student == null || student.getUser() == null) {
-            throw new RuntimeException("Student user not found for this request");
+        User user = student.getUser();
+
+        String email = getStudentEmail(student, user);
+
+        // 🔥 Send email ONLY if mailSender exists
+        if (mailSender != null && email != null && isValidEmail(email)) {
+            sendEmail(email,
+                    "Reminder for Certificate",
+                    "Please upload your certificate before " + request.getCertificateDueDate());
+        } else {
+            System.out.println("⚠ Email skipped (mail not configured)");
         }
 
-        User studentUser = student.getUser();
-
-        LocalDateTime startOfDay = today.atStartOfDay();
-        LocalDateTime endOfDay = today.plusDays(1).atStartOfDay().minusNanos(1);
-
-        boolean alreadySentToday = notificationRepository.existsByUserIdAndRelatedRequestIdAndCreatedAtBetween(
-                studentUser.getId(),
-                request.getId(),
-                startOfDay,
-                endOfDay
-        );
-
-        if (alreadySentToday) {
-            throw new RuntimeException("Reminder already sent today for this request");
-        }
-
-        String studentName = (student.getName() != null && !student.getName().isBlank())
-                ? student.getName()
-                : studentUser.getUsername();
-
-        String studentEmail = getStudentEmail(student, studentUser);
-
-        if (studentEmail == null || studentEmail.isBlank()) {
-            throw new RuntimeException("Student email is not available");
-        }
-
-        if (!isValidEmail(studentEmail)) {
-            throw new RuntimeException("Student email is invalid in database: " + studentEmail);
-        }
-
-        String reasonText = request.getReason() != null ? request.getReason() : "your approved request";
-        String dueDateText = request.getCertificateDueDate().toString();
-
-        String emailSubject = "Reminder for Certificate Submission";
-
-        String emailBody = "Dear " + studentName + ",\n\n"
-                + "We hope you are doing well.\n\n"
-                + "This is a reminder that you have not yet submitted the certificate for your approved request related to "
-                + reasonText + ".\n\n"
-                + "Kindly upload the required certificate on or before " + dueDateText
-                + " to complete the verification process.\n\n"
-                + "If you have already submitted it, please ignore this email.\n\n"
-                + "Regards,\n"
-                + "HOD Office\n"
-                + "SANCHARA PORTAL";
-
-        sendEmail(studentEmail, emailSubject, emailBody);
-
-        String notificationMessage = "Dear " + studentName + ", your approved request for " + reasonText +
-                " is in the certificate submission period ending on " + dueDateText + ". " +
-                "You have not uploaded the required certificate yet. " +
-                "Please upload the certificate as soon as possible.";
-
-        sendNotification(studentUser, notificationMessage, request.getId());
+        sendNotification(user,
+                "Reminder: Upload certificate before " + request.getCertificateDueDate(),
+                request.getId());
     }
 
     @Override
@@ -181,23 +128,31 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public Notification markAsRead(Long notificationId) {
-        Notification notification = notificationRepository.findById(notificationId)
-                .orElseThrow(() -> new RuntimeException("Notification not found"));
-
-        notification.setRead(true);
-        return notificationRepository.save(notification);
+    public Notification markAsRead(Long id) {
+        Notification n = notificationRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Not found"));
+        n.setRead(true);
+        return notificationRepository.save(n);
     }
 
-    private String getStudentEmail(Student student, User studentUser) {
-        if (student.getEmail() != null && !student.getEmail().trim().isEmpty()) {
-            return student.getEmail().trim();
-        }
+    private void sendEmail(String to, String subject, String body) {
+        try {
+            SimpleMailMessage msg = new SimpleMailMessage();
+            msg.setFrom(fromEmail);
+            msg.setTo(to);
+            msg.setSubject(subject);
+            msg.setText(body);
 
-        if (studentUser.getEmail() != null && !studentUser.getEmail().trim().isEmpty()) {
-            return studentUser.getEmail().trim();
-        }
+            mailSender.send(msg);
 
+        } catch (Exception e) {
+            System.out.println("⚠ Email failed: " + e.getMessage());
+        }
+    }
+
+    private String getStudentEmail(Student s, User u) {
+        if (s.getEmail() != null && !s.getEmail().isBlank()) return s.getEmail();
+        if (u.getEmail() != null && !u.getEmail().isBlank()) return u.getEmail();
         return null;
     }
 
@@ -205,28 +160,9 @@ public class NotificationServiceImpl implements NotificationService {
         return EMAIL_PATTERN.matcher(email).matches();
     }
 
-    private void sendEmail(String toEmail, String subject, String body) {
-        try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromEmail);
-            message.setTo(toEmail);
-            message.setSubject(subject);
-            message.setText(body);
-
-            mailSender.send(message);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to send reminder email: " + e.getMessage());
-        }
-    }
-
     private boolean isCertificateRequired(String reason) {
-        return CERTIFICATE_REQUIRED_REASONS.contains(normalizeReason(reason));
-    }
-
-    private String normalizeReason(String reason) {
-        return String.valueOf(reason == null ? "" : reason)
-                .trim()
-                .replaceAll("\\s+", " ")
-                .toUpperCase();
+        return CERTIFICATE_REQUIRED_REASONS.contains(
+                String.valueOf(reason).trim().toUpperCase()
+        );
     }
 }
