@@ -3,48 +3,121 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Apply for Permission</title>
+    <title>EduPermis | Apply Permission</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <script src="https://unpkg.com/@lottiefiles/dotlottie-wc@0.9.10/dist/dotlottie-wc.js" type="module"></script>
+
     <link rel="stylesheet" href="css/permission.css" />
 </head>
 <body>
-    <div class="page-wrap">
-        <section class="content-card">
-            <div class="card-header">
-                <h2>Create Permission Request</h2>
-                <p>Fill in the details below and submit your request.</p>
-            </div>
+    <div class="standalone-wrapper">
+        <div class="form-card">
+            <h3>Create Permission Request</h3>
+            <p class="form-subtitle">
+                Fill in the necessary details below to route your request to the concerned faculty.
+            </p>
 
-            <div class="form-grid">
-                <div class="form-group full-width">
-                    <label for="hodSelect">Select HOD</label>
+            <div class="input-group" id="hodGroup">
+                <label for="hodSelect">Select HOD</label>
+                <div class="input-with-icon select-wrapper">
+                    <i class="fa-solid fa-user-tie"></i>
                     <select id="hodSelect">
                         <option value="">Loading HODs...</option>
                     </select>
                 </div>
+            </div>
 
-                <div class="form-group full-width">
-                    <label for="reason">Reason / Event Name</label>
-                    <input type="text" id="reason" placeholder="Ex: Smart India Hackathon 2026" />
-                </div>
-
-                <div class="form-group">
-                    <label for="startDate">Start Date</label>
-                    <input type="date" id="startDate" />
-                </div>
-
-                <div class="form-group">
-                    <label for="endDate">End Date</label>
-                    <input type="date" id="endDate" />
-                </div>
-
-                <div class="form-group full-width">
-                    <label for="description">Description</label>
-                    <textarea id="description" placeholder="Enter purpose, event details, location, team info, etc."></textarea>
+            <div class="input-group" id="reasonGroup">
+                <label for="reason">Reason / Event Name</label>
+                <div class="input-with-icon select-wrapper">
+                    <i class="fa-solid fa-list-check"></i>
+                    <select id="reason">
+                        <option value="">-- Select Reason --</option>
+                        <option value="Hackathon">Participating in Hackathon</option>
+                        <option value="Seminar">Attending Seminar</option>
+                        <option value="Medical Leave">Medical Leave</option>
+                        <option value="Personal Leave">Personal Leave</option>
+                        <option value="Sports Event">Sports Event</option>
+                        <option value="Workshop / Training">Workshop / Training</option>
+                        <option value="Bank Purpose">Bank Purpose</option>
+                        <option value="Cultural Event">Cultural Event</option>
+                        <option value="Club Meetings">Club Meetings</option>
+                        <option value="Industrial Visit">Industrial Visit</option>
+                        <option value="Internship">Internship</option>
+                        <option value="Research / Project">Research / Project</option>
+                    </select>
                 </div>
             </div>
 
-            <button class="primary-btn" onclick="createRequest()">Submit Request</button>
-        </section>
+            <div class="input-row">
+                <div class="input-group" id="startDateGroup">
+                    <label for="startDate">Start Date</label>
+                    <div class="input-with-icon">
+                        <i class="fa-regular fa-calendar-days"></i>
+                        <input type="date" id="startDate" />
+                    </div>
+                </div>
+
+                <div class="input-group" id="endDateGroup">
+                    <label for="endDate">End Date</label>
+                    <div class="input-with-icon">
+                        <i class="fa-regular fa-calendar-check"></i>
+                        <input type="date" id="endDate" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="input-group" id="descriptionGroup">
+                <label for="description">Description</label>
+                <div class="input-with-icon align-top">
+                    <i class="fa-solid fa-align-left"></i>
+                    <textarea
+                        id="description"
+                        rows="5"
+                        placeholder="Enter purpose, event details, location, team info, medical note, seminar details, etc."
+                    ></textarea>
+                </div>
+            </div>
+
+            <div class="info-alert">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <div>
+                    <strong>Mandatory Post-Event Action</strong>
+                    <p>
+                        A valid certification of participation or merit must be uploaded to the portal after the event concludes.
+                    </p>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button class="submit-btn" id="submitBtn" type="button">
+                    Submit Request
+                    <i class="fa-solid fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="success-modal" id="successModal">
+        <div class="modal-content">
+            <dotlottie-wc
+                src="https://lottie.host/0dc7b6f8-5174-439b-8c82-20a6385b9c77/wBcCUw3osa.lottie"
+                style="width: 150px; height: 150px"
+                autoplay
+                loop
+            ></dotlottie-wc>
+
+            <h3>Request Submitted!</h3>
+            <p>
+                Your permission request has been successfully recorded and forwarded to the designated HOD for review.
+            </p>
+
+            <button class="submit-btn modal-btn" id="closeModalBtn" type="button">
+                OK
+            </button>
+        </div>
     </div>
 
     <script src="js/permission.js"></script>

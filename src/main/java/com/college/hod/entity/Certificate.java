@@ -1,9 +1,11 @@
 package com.college.hod.entity;
 
+import com.college.hod.enums.CertificateStatus;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
-import com.college.hod.enums.CertificateStatus;
+
+import java.time.LocalDate;
 
 @Entity
 @Data
@@ -23,6 +25,12 @@ public class Certificate {
 
     @Enumerated(EnumType.STRING)
     private CertificateStatus status;
+
+    @Column(name = "rejection_remark", columnDefinition = "TEXT")
+    private String rejectionRemark;
+
+    @Column(name = "rejected_at")
+    private LocalDate rejectedAt;
 
     // Each certificate belongs to one request
     @OneToOne

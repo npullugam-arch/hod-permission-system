@@ -36,6 +36,9 @@ public class Request {
     @Column(name = "certificate_due_date")
     private LocalDate certificateDueDate;
 
+    @Column(name = "rejection_remark", columnDefinition = "TEXT")
+    private String rejectionRemark;
+
     @Enumerated(EnumType.STRING)
     private RequestStatus status;
 

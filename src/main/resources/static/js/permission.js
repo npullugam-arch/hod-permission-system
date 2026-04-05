@@ -4,51 +4,99 @@ if (!user) {
     window.top.location.href = "index.html";
 }
 
-window.onload = function () {
+const hodSelect = document.getElementById("hodSelect");
+const reasonSelect = document.getElementById("reason");
+const startDateInput = document.getElementById("startDate");
+const endDateInput = document.getElementById("endDate");
+const descriptionInput = document.getElementById("description");
+const submitBtn = document.getElementById("submitBtn");
+const successModal = document.getElementById("successModal");
+const closeModalBtn = document.getElementById("closeModalBtn");
+
+window.addEventListener("DOMContentLoaded", () => {
     loadHods();
-};
+    attachValidationListeners();
+    submitBtn.addEventListener("click", createRequest);
+    closeModalBtn.addEventListener("click", closeSuccessModal);
+});
 
 function loadHods() {
     fetch("/request/hods")
-        .then(res => {
+        .then((res) => {
             if (!res.ok) {
                 throw new Error("Failed to load HOD list");
             }
             return res.json();
         })
-        .then(data => {
-            const hodSelect = document.getElementById("hodSelect");
+        .then((data) => {
             hodSelect.innerHTML = `<option value="">-- Select HOD --</option>`;
 
-            data.forEach(hod => {
-                hodSelect.innerHTML += `<option value="${hod.id}">${hod.username}</option>`;
+            if (!Array.isArray(data) || data.length === 0) {
+                hodSelect.innerHTML = `<option value="">No HODs available</option>`;
+                return;
+            }
+
+            data.forEach((hod) => {
+                hodSelect.innerHTML += `
+                    <option value="${hod.id}">
+                        ${escapeHtml(hod.username)}
+                    </option>
+                `;
             });
         })
-        .catch(err => {
+        .catch((err) => {
             console.error(err);
-            document.getElementById("hodSelect").innerHTML = `<option value="">Unable to load HODs</option>`;
+            hodSelect.innerHTML = `<option value="">Unable to load HODs</option>`;
         });
 }
 
 function createRequest() {
-    const hodId = document.getElementById("hodSelect").value;
-    const reason = document.getElementById("reason").value.trim();
-    const startDate = document.getElementById("startDate").value;
-    const endDate = document.getElementById("endDate").value;
-    const description = document.getElementById("description").value.trim();
+    const hodId = hodSelect.value;
+    const reason = reasonSelect.value;
+    const startDate = startDateInput.value;
+    const endDate = endDateInput.value;
+    const description = descriptionInput.value.trim();
 
-    if (!hodId) {
-        alert("Please select an HOD.");
-        return;
-    }
+    const inputsToCheck = [
+        hodSelect,
+        reasonSelect,
+        startDateInput,
+        endDateInput,
+        descriptionInput
+    ];
 
-    if (!reason || !startDate || !endDate || !description) {
-        alert("Please fill all fields.");
+    clearAllWarnings();
+
+    let isValid = true;
+    let firstInvalidInput = null;
+
+    inputsToCheck.forEach((input) => {
+        const value = typeof input.value === "string" ? input.value.trim() : input.value;
+        if (!value) {
+            showWarning(input);
+            isValid = false;
+            if (!firstInvalidInput) {
+                firstInvalidInput = input;
+            }
+        }
+    });
+
+    if (!isValid) {
+        if (firstInvalidInput) {
+            firstInvalidInput.scrollIntoView({
+                behavior: "smooth",
+                block: "center"
+            });
+            firstInvalidInput.focus();
+        }
         return;
     }
 
     if (startDate > endDate) {
+        showWarning(startDateInput);
+        showWarning(endDateInput);
         alert("Start date cannot be greater than end date.");
+        endDateInput.focus();
         return;
     }
 
@@ -61,6 +109,9 @@ function createRequest() {
         hod: { id: Number(hodId) }
     };
 
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = `Submitting... <i class="fa-solid fa-spinner fa-spin"></i>`;
+
     fetch("/request/create", {
         method: "POST",
         headers: {
@@ -68,28 +119,100 @@ function createRequest() {
         },
         body: JSON.stringify(requestData)
     })
-        .then(res => {
+        .then((res) => {
             if (!res.ok) {
-                return res.text().then(message => {
+                return res.text().then((message) => {
                     throw new Error(message || "Failed to create request");
                 });
             }
             return res.json();
         })
         .then(() => {
-            alert("Request submitted successfully!");
+            openSuccessModal();
             clearForm();
         })
-        .catch(err => {
+        .catch((err) => {
             console.error(err);
             alert(err.message || "Error while submitting request.");
+        })
+        .finally(() => {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = `Submit Request <i class="fa-solid fa-paper-plane"></i>`;
         });
 }
 
 function clearForm() {
-    document.getElementById("hodSelect").value = "";
-    document.getElementById("reason").value = "";
-    document.getElementById("startDate").value = "";
-    document.getElementById("endDate").value = "";
-    document.getElementById("description").value = "";
+    hodSelect.value = "";
+    reasonSelect.value = "";
+    startDateInput.value = "";
+    endDateInput.value = "";
+    descriptionInput.value = "";
+    clearAllWarnings();
+}
+
+function openSuccessModal() {
+    successModal.classList.add("active");
+}
+
+function closeSuccessModal() {
+    successModal.classList.remove("active");
+}
+
+function attachValidationListeners() {
+    const allInputs = document.querySelectorAll("input, select, textarea");
+
+    allInputs.forEach((input) => {
+        // Removed the "focus" listener so auto-focusing on validation failure 
+        // doesn't instantly clear the warning animation.
+        input.addEventListener("input", () => removeWarning(input));
+        input.addEventListener("change", () => removeWarning(input));
+        input.addEventListener("click", () => removeWarning(input));
+    });
+}
+
+function showWarning(inputElement) {
+    const wrapper = inputElement.closest(".input-group");
+    if (!wrapper) return;
+
+    if (!wrapper.querySelector(".warning-lottie-container")) {
+        const warningDiv = document.createElement("div");
+        warningDiv.className = "warning-lottie-container";
+        warningDiv.innerHTML = `
+            <dotlottie-wc
+                src="https://lottie.host/fad9e472-ac97-44a6-977c-2fa673fdf405/O04RSXfJ4e.lottie"
+                style="width: 50px; height: 50px"
+                autoplay
+                loop
+            ></dotlottie-wc>
+        `;
+        wrapper.appendChild(warningDiv);
+    }
+
+    inputElement.classList.add("error-glow");
+}
+
+function removeWarning(inputElement) {
+    const wrapper = inputElement.closest(".input-group");
+    if (!wrapper) return;
+
+    const warning = wrapper.querySelector(".warning-lottie-container");
+    if (warning) {
+        warning.remove();
+    }
+
+    inputElement.classList.remove("error-glow");
+}
+
+function clearAllWarnings() {
+    const allInputs = document.querySelectorAll("input, select, textarea");
+    allInputs.forEach((input) => removeWarning(input));
+}
+
+function escapeHtml(value) {
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
 }

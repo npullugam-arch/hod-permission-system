@@ -15,7 +15,7 @@ public class CertificateController {
     @Autowired
     private CertificateService certificateService;
 
-    // Upload certificate file
+    // Upload or replace certificate file
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Certificate uploadCertificate(@RequestParam Long requestId,
                                          @RequestParam("file") MultipartFile file) {
@@ -27,5 +27,19 @@ public class CertificateController {
     @PostMapping("/verify/{id}")
     public Certificate verifyCertificate(@PathVariable Long id) {
         return certificateService.verifyCertificate(id);
+    }
+
+    // Reject certificate with remark
+    @PostMapping("/reject/{id}")
+    public Certificate rejectCertificate(@PathVariable Long id,
+                                         @RequestParam String remark) {
+        return certificateService.rejectCertificate(id, remark);
+    }
+
+    // Delete certificate by request id
+    @DeleteMapping("/request/{requestId}")
+    public String deleteCertificateByRequestId(@PathVariable Long requestId) {
+        certificateService.deleteCertificateByRequestId(requestId);
+        return "Certificate deleted successfully";
     }
 }

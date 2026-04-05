@@ -14,9 +14,19 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class RequestServiceImpl implements RequestService {
+
+    private static final Set<String> CERTIFICATE_REQUIRED_REASONS = Set.of(
+            "HACKATHON",
+            "SEMINAR",
+            "MEDICAL LEAVE",
+            "SPORTS EVENT",
+            "WORKSHOP / TRAINING",
+            "INTERNSHIP"
+    );
 
     @Autowired
     private RequestRepository requestRepository;
@@ -38,6 +48,10 @@ public class RequestServiceImpl implements RequestService {
             throw new RuntimeException("HOD selection is required");
         }
 
+        if (request.getReason() == null || request.getReason().trim().isEmpty()) {
+            throw new RuntimeException("Reason is required");
+        }
+
         User hodUser = userRepository.findById(request.getHod().getId())
                 .orElseThrow(() -> new RuntimeException("Selected HOD not found"));
 
@@ -47,10 +61,14 @@ public class RequestServiceImpl implements RequestService {
 
         Student student = resolveStudent(request.getStudent().getId());
 
+        request.setReason(request.getReason().trim());
         request.setStudent(student);
         request.setHod(hodUser);
         request.setStatus(RequestStatus.PENDING);
         request.setRequestDate(LocalDate.now());
+        request.setApprovalDate(null);
+        request.setCertificateDueDate(null);
+        request.setRejectionRemark(null);
 
         return requestRepository.save(request);
     }
@@ -62,20 +80,30 @@ public class RequestServiceImpl implements RequestService {
 
         req.setStatus(RequestStatus.APPROVED);
         req.setApprovalDate(LocalDate.now());
+        req.setRejectionRemark(null);
 
-        if (req.getEndDate() != null) {
+        if (req.getEndDate() != null && isCertificateRequired(req.getReason())) {
             req.setCertificateDueDate(req.getEndDate().plusDays(3));
+        } else {
+            req.setCertificateDueDate(null);
         }
 
         return requestRepository.save(req);
     }
 
     @Override
-    public Request rejectRequest(Long requestId) {
+    public Request rejectRequest(Long requestId, String remark) {
         Request req = requestRepository.findById(requestId)
                 .orElseThrow(() -> new RuntimeException("Request not found"));
 
+        if (remark == null || remark.trim().isEmpty()) {
+            throw new RuntimeException("Rejection remark is required");
+        }
+
         req.setStatus(RequestStatus.REJECTED);
+        req.setRejectionRemark(remark.trim());
+        req.setCertificateDueDate(null);
+
         return requestRepository.save(req);
     }
 
@@ -120,5 +148,16 @@ public class RequestServiceImpl implements RequestService {
         student.setUser(user);
 
         return studentRepository.save(student);
+    }
+
+    private boolean isCertificateRequired(String reason) {
+        return CERTIFICATE_REQUIRED_REASONS.contains(normalizeReason(reason));
+    }
+
+    private String normalizeReason(String reason) {
+        return String.valueOf(reason == null ? "" : reason)
+                .trim()
+                .replaceAll("\\s+", " ")
+                .toUpperCase();
     }
 }

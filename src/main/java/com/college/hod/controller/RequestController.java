@@ -27,8 +27,9 @@ public class RequestController {
     }
 
     @PutMapping("/reject/{id}")
-    public Request rejectRequest(@PathVariable Long id) {
-        return requestService.rejectRequest(id);
+    public Request rejectRequest(@PathVariable Long id,
+                                 @RequestParam String remark) {
+        return requestService.rejectRequest(id, remark);
     }
 
     @GetMapping("/student/{studentId}")

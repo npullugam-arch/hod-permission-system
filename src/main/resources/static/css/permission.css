@@ -1,105 +1,561 @@
+:root {
+    --primary: #3b82f6;
+    --primary-glow: rgba(59, 130, 246, 0.45);
+    --white: #ffffff;
+    --text-main: #1e293b;
+    --text-light: #64748b;
+    --border: #e2e8f0;
+    --bg-light: #f8fafc;
+    --warning-bg: #fffbeb;
+    --warning-border: #f59e0b;
+    --warning-text: #d97706;
+    --success-bg: rgba(15, 23, 42, 0.5);
+    --transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 * {
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
+    font-family: "Inter", sans-serif;
+}
+
+html,
+body {
+    width: 100%;
+    min-height: 100%;
 }
 
 body {
-    font-family: Arial, Helvetica, sans-serif;
     background: #f8fafc;
-    color: #1f2937;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    padding: 24px;
+}
+
+.standalone-wrapper {
+    width: 100%;
+    max-width: 900px;
+}
+
+.form-card {
+    background: var(--white);
+    border-radius: 24px;
+    padding: 36px 40px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+    border: 1px solid #f1f5f9;
+}
+
+.form-card h3 {
+    font-size: 1.55rem;
+    color: var(--text-main);
+    margin-bottom: 8px;
+    font-weight: 800;
+}
+
+.form-subtitle {
+    color: var(--text-light);
+    font-size: 0.97rem;
+    margin-bottom: 30px;
+    line-height: 1.5;
+}
+
+.input-group {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 24px;
+}
+
+.input-group label {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 9px;
+}
+
+.input-row {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 0;
+}
+
+.input-row .input-group {
+    flex: 1;
+}
+
+.input-with-icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-with-icon.align-top {
+    align-items: flex-start;
+}
+
+.input-with-icon i {
+    position: absolute;
+    left: 16px;
+    font-size: 1rem;
+    color: #94a3b8;
+    pointer-events: none;
+    transition: var(--transition);
+    z-index: 2;
+}
+
+.input-with-icon.align-top i {
+    top: 16px;
+}
+
+.input-with-icon input,
+.input-with-icon select,
+.input-with-icon textarea {
+    width: 100%;
+    padding: 14px 16px 14px 46px;
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    font-size: 0.96rem;
+    font-weight: 500;
+    color: var(--text-main);
+    background: var(--bg-light);
+    transition: var(--transition);
+}
+
+.input-with-icon textarea {
+    resize: vertical;
+    min-height: 130px;
+    line-height: 1.5;
+}
+
+.input-with-icon input:focus,
+.input-with-icon select:focus,
+.input-with-icon textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    background: var(--white);
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+}
+
+.input-with-icon input:focus ~ i,
+.input-with-icon select:focus ~ i,
+.input-with-icon textarea:focus ~ i {
+    color: var(--primary);
+}
+
+.input-with-icon select {
+    appearance: none;
+    cursor: pointer;
+}
+
+.select-wrapper::after {
+    content: "▼";
+    position: absolute;
+    right: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.78rem;
+    color: #94a3b8;
+    pointer-events: none;
+}
+
+.info-alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    background: var(--warning-bg);
+    border-left: 4px solid var(--warning-border);
+    padding: 18px;
+    border-radius: 12px;
+    margin-top: 10px;
+    margin-bottom: 28px;
+}
+
+.info-alert i {
+    font-size: 1.3rem;
+    color: var(--warning-border);
+    margin-top: 2px;
+}
+
+.info-alert strong {
+    color: #b45309;
+    font-size: 0.95rem;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.info-alert p {
+    color: var(--warning-text);
+    font-size: 0.88rem;
+    line-height: 1.5;
+    font-weight: 500;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 12px;
+}
+
+.submit-btn {
+    background: var(--primary);
+    color: #ffffff;
+    border: none;
+    padding: 15px 34px;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 14px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: var(--transition);
+    box-shadow: 0 10px 20px var(--primary-glow);
+}
+
+.submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 24px rgba(59, 130, 246, 0.35);
+}
+
+.submit-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.warning-lottie-container {
+    position: absolute;
+    right: 0;
+    top: -40px;
+    filter: drop-shadow(0 0 12px rgba(59, 130, 246, 0.85));
+    animation: bounceFloat 0.7s infinite alternate ease-in-out;
+    z-index: 10;
+    pointer-events: none;
+}
+
+@keyframes bounceFloat {
+    from {
+        transform: translateY(0);
+    }
+    to {
+        transform: translateY(-12px);
+    }
+}
+
+.error-glow {
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15) !important;
+    background: #ffffff !important;
+}
+
+.success-modal {
+    position: fixed;
+    inset: 0;
+    background: var(--success-bg);
+    backdrop-filter: blur(8px);
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.35s ease;
     padding: 20px;
 }
 
-.page-wrap {
-    width: 100%;
+.success-modal.active {
+    opacity: 1;
+    pointer-events: auto;
 }
 
-.content-card {
-    background: #fff;
-    border-radius: 18px;
-    padding: 24px;
-    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
-}
-
-.card-header {
-    margin-bottom: 22px;
-}
-
-.card-header h2 {
-    font-size: 28px;
-    color: #0f172a;
-    margin-bottom: 8px;
-}
-
-.card-header p {
-    color: #64748b;
-    font-size: 15px;
-}
-
-.form-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 18px;
-    margin-bottom: 20px;
-}
-
-.form-group {
+.modal-content {
+    background: var(--white);
+    padding: 38px 32px;
+    border-radius: 24px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+    text-align: center;
+    transform: translateY(24px) scale(0.96);
+    transition: all 0.35s ease;
     display: flex;
     flex-direction: column;
-}
-
-.form-group.full-width {
-    grid-column: 1 / -1;
-}
-
-label {
-    margin-bottom: 8px;
-    font-weight: 700;
-    color: #334155;
-}
-
-input,
-select,
-textarea {
+    align-items: center;
+    max-width: 450px;
     width: 100%;
-    padding: 14px 15px;
-    border: 1px solid #dbe2ea;
-    border-radius: 12px;
-    font-size: 15px;
-    outline: none;
-    background: #f8fafc;
 }
 
-input:focus,
-select:focus,
-textarea:focus {
-    border-color: #2563eb;
-    background: #fff;
+.success-modal.active .modal-content {
+    transform: translateY(0) scale(1);
 }
 
-textarea {
-    min-height: 120px;
-    resize: vertical;
+.modal-content h3 {
+    font-size: 1.55rem;
+    color: var(--text-main);
+    margin-bottom: 10px;
+    font-weight: 800;
 }
 
-.primary-btn {
-    background: #2563eb;
-    color: white;
-    border: none;
-    padding: 14px 22px;
-    border-radius: 12px;
-    cursor: pointer;
-    font-size: 15px;
-    font-weight: 700;
+.modal-content p {
+    color: var(--text-light);
+    font-size: 0.98rem;
+    line-height: 1.6;
+    margin-bottom: 24px;
 }
 
-.primary-btn:hover {
-    background: #1d4ed8;
+.modal-btn {
+    width: 100%;
+    margin-top: 6px;
 }
 
 @media (max-width: 768px) {
-    .form-grid {
-        grid-template-columns: 1fr;
+    body {
+        padding: 14px;
+    }
+
+    .form-card {
+        padding: 24px 18px;
+        border-radius: 20px;
+    }
+
+    .input-row {
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .submit-btn {
+        width: 100%;
+    }
+
+    .form-actions {
+        justify-content: stretch;
+    }
+
+    .modal-content {
+        padding: 28px 20px;
+    }
+}
+
+/* ===== iframe fit fix for permission page ===== */
+html,
+body {
+    width: 100%;
+    height: 100%;
+    min-height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: auto;
+    background: transparent;
+}
+
+body {
+    display: block;
+    min-height: 100%;
+    padding: 0;
+}
+
+.standalone-wrapper {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.form-card {
+    width: 100%;
+    max-width: 100%;
+    min-height: 100%;
+    margin: 0;
+    border-radius: 0;
+    box-shadow: none;
+    border: none;
+    padding: 32px;
+    background: #ffffff;
+}
+
+@media (max-width: 768px) {
+    .form-card {
+        padding: 20px 16px;
+    }
+}
+
+/* FINAL NO-WHITE-SPACE FIX */
+html,
+body {
+    width: 100%;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow-x: hidden !important;
+    overflow-y: hidden !important;
+    background: transparent !important;
+}
+
+body {
+    display: block !important;
+}
+
+.standalone-wrapper {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.form-card {
+    width: 100%;
+    max-width: 100%;
+    min-height: auto !important;
+    margin: 0 !important;
+    padding: 24px !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+}
+
+/* ===== MAKE INNER PAGE FLOW NORMALLY ===== */
+
+html,
+body {
+    width: 100%;
+    min-height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    overflow-y: visible;
+    background: transparent;
+}
+
+body {
+    display: block;
+}
+
+.standalone-wrapper {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.form-card {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 32px;
+    min-height: auto;
+    border-radius: 0;
+    box-shadow: none;
+    border: none;
+    background: #ffffff;
+    box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+    .form-card {
+        padding: 20px 16px;
+    }
+}
+html,
+body {
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow-x: hidden !important;
+    overflow-y: hidden !important;
+}
+
+body {
+    display: block !important;
+    background: transparent !important;
+}
+
+.standalone-wrapper {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.form-card {
+    margin: 0 !important;
+    min-height: auto !important;
+    padding-bottom: 24px !important;
+}
+
+/* ABSOLUTE FINAL NO-WHITE-SPACE OVERRIDE */
+html,
+body {
+    height: auto !important;
+    min-height: 0 !important;
+    overflow-x: hidden !important;
+    overflow-y: hidden !important;
+    background: transparent !important;
+}
+
+body {
+    padding: 0 !important;
+    display: block !important;
+}
+
+.standalone-wrapper,
+.form-card {
+    margin: 0 !important;
+}
+
+.form-card {
+    min-height: auto !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+}
+
+/* =========================================================
+   FINAL APPLY PERMISSION SCROLL FIX
+   Paste at the very bottom of permission.css
+   ========================================================= */
+
+html,
+body {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    background: transparent !important;
+}
+
+body {
+    display: block !important;
+}
+
+.standalone-wrapper {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+}
+
+.form-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: auto !important;
+    margin: 0 !important;
+    padding: 32px !important;
+    border-radius: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    background: #ffffff !important;
+    overflow: visible !important;
+    box-sizing: border-box !important;
+}
+
+@media (max-width: 768px) {
+    .form-card {
+        padding: 20px 16px !important;
     }
 }

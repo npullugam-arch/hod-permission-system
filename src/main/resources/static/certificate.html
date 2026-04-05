@@ -4,6 +4,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Upload Certificate</title>
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
     <link rel="stylesheet" href="css/certificate.css" />
 </head>
 <body>
@@ -11,25 +14,84 @@
         <section class="content-card">
             <div class="card-header">
                 <h2>Upload Certificate</h2>
-                <p>Upload certificate for approved requests. Allowed types: JPG, JPEG, PNG, PDF. Max size: 1 MB.</p>
+                <p>
+                    Only HOD approved requests that require certificate/proof are shown here.
+                    Allowed types: JPG, JPEG, PNG, PDF. Max size: 1 MB.
+                </p>
             </div>
 
             <div class="table-wrap">
-                <table>
+                <table class="requests-table">
                     <thead>
                         <tr>
                             <th>Event / Reason</th>
                             <th>HOD</th>
+                            <th>Status</th>
                             <th>End Date</th>
                             <th>Certificate Due</th>
                             <th>Certificate Path</th>
                             <th>Action</th>
                         </tr>
                     </thead>
-                    <tbody id="certificateTable"></tbody>
+                    <tbody id="certificateTable">
+                        <tr>
+                            <td colspan="7" class="empty-row">Loading certificate requests...</td>
+                        </tr>
+                    </tbody>
                 </table>
             </div>
         </section>
+    </div>
+
+    <!-- Info Modal -->
+    <div class="modal-overlay" id="infoModal">
+        <div class="modal-box">
+            <div class="modal-icon info-icon">
+                <i class="fa-solid fa-circle-info"></i>
+            </div>
+            <h3 class="modal-title" id="infoModalTitle">Info</h3>
+            <p class="modal-desc" id="infoModalMessage">Message</p>
+            <button class="modal-btn modal-btn-primary" onclick="closeModal('infoModal')">Okay</button>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="modal-overlay" id="successModal">
+        <div class="modal-box">
+            <div class="modal-icon success-icon">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
+            <h3 class="modal-title">Success</h3>
+            <p class="modal-desc" id="successModalMessage">Action completed successfully.</p>
+            <button class="modal-btn modal-btn-primary" onclick="closeModal('successModal')">Done</button>
+        </div>
+    </div>
+
+    <!-- Error Modal -->
+    <div class="modal-overlay" id="errorModal">
+        <div class="modal-box">
+            <div class="modal-icon error-icon">
+                <i class="fa-solid fa-circle-xmark"></i>
+            </div>
+            <h3 class="modal-title">Error</h3>
+            <p class="modal-desc" id="errorModalMessage">Something went wrong.</p>
+            <button class="modal-btn" onclick="closeModal('errorModal')">Close</button>
+        </div>
+    </div>
+
+    <!-- Confirm Delete Modal -->
+    <div class="modal-overlay" id="deleteConfirmModal">
+        <div class="modal-box">
+            <div class="modal-icon danger-icon">
+                <i class="fa-solid fa-trash-can"></i>
+            </div>
+            <h3 class="modal-title">Delete Certificate?</h3>
+            <p class="modal-desc">Are you sure you want to delete this certificate?</p>
+            <div class="modal-actions">
+                <button class="modal-btn" onclick="closeModal('deleteConfirmModal')">Cancel</button>
+                <button class="modal-btn modal-btn-danger" id="confirmDeleteBtn">Delete</button>
+            </div>
+        </div>
     </div>
 
     <script src="js/certificate.js"></script>

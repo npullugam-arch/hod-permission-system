@@ -11,7 +11,7 @@ public interface RequestService {
 
     Request approveRequest(Long requestId);
 
-    Request rejectRequest(Long requestId);
+    Request rejectRequest(Long requestId, String remark);
 
     List<Request> getRequestsByStudent(Long studentId);
 

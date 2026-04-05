@@ -3,110 +3,249 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>EventPass - Student Dashboard</title>
+    <title>EduPermis | Student Dashboard</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <script src="https://unpkg.com/@lottiefiles/dotlottie-wc@0.9.10/dist/dotlottie-wc.js" type="module"></script>
+
     <link rel="stylesheet" href="css/student.css" />
 </head>
 <body>
-    <div class="app-layout">
-        <!-- Sidebar -->
-        <aside class="sidebar">
-            <div class="brand">
-                <div class="brand-icon">EP</div>
-                <div>
-                    <h2>EduPermis</h2>
-                    <p>Student Portal</p>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Sidebar -->
+    <aside class="side-panel" id="sidePanel">
+        <div class="sidebar-top">
+           <div class="logo-section">
+    <img src="https://i.postimg.cc/JhLRjkbv/sanchara-logo-white-transparent.png" style="width: 100%; max-width: 180px;  padding: 10px; border-radius: 12px;"/>
+</div>
+
+            <button class="menu-toggle" id="menuToggle" type="button">☰</button>
+            <button class="mobile-close-btn" id="mobileCloseBtn" type="button">✕</button>
+        </div>
+
+        <p class="menu-label">Main Menu</p>
+
+        <nav class="nav-menu">
+            <div class="nav-item">
+                <a href="#" class="nav-link active" data-page="dashboard" onclick="showDashboard(event)">
+                    <i class="fa-solid fa-chart-bar"></i>
+                    <span>Dashboard</span>
+                </a>
+            </div>
+
+            <div class="nav-item">
+                <a href="#" class="nav-link" data-page="permission" onclick="loadPage(event, 'permission.html', 'Apply for Permission')">
+                    <i class="fa-solid fa-file-lines"></i>
+                    <span>Apply Permission</span>
+                </a>
+            </div>
+
+            <div class="nav-item">
+                <a href="#" class="nav-link" data-page="request" onclick="loadPage(event, 'request.html', 'My Requests')">
+                    <i class="fa-solid fa-folder"></i>
+                    <span>My Requests</span>
+                </a>
+            </div>
+
+            <div class="nav-item">
+                <a href="#" class="nav-link" data-page="certificate" onclick="loadPage(event, 'certificate.html', 'Upload Certificate')">
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                    <span>Upload Certificate</span>
+                </a>
+            </div>
+
+            <div class="nav-item">
+                <a href="#" class="nav-link" data-page="reminders" onclick="openReminderModal(event)">
+                    <i class="fa-solid fa-bell"></i>
+                    <span>Reminders</span>
+                </a>
+            </div>
+        </nav>
+
+        <nav class="nav-menu nav-bottom">
+            <p class="menu-label">Account</p>
+
+            <div class="nav-item">
+                <a href="#" class="nav-link" onclick="openProfileCard(event)">
+                    <i class="fa-solid fa-address-book"></i>
+                    <span>Profile</span>
+                </a>
+            </div>
+
+            <div class="nav-item">
+                <a href="#" class="nav-link logout-link" onclick="logout()">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- Main -->
+    <main class="main-wrapper">
+        <div class="mobile-top-bar">
+            <button class="mobile-hamburger" id="mobileMenuBtn" type="button">☰</button>
+            <img src="https://i.postimg.cc/vB9nm9tV/sanchara-logo-clean.png" style="width: 130px;">
+        </div>
+
+        <header class="top-header">
+            <div class="welcome-msg">
+                <h2>
+                    <i class="fa-solid fa-chart-bar" id="headerIcon"></i>
+                    <span id="pageTitle">Dashboard</span>
+                </h2>
+                <p id="pageSubtitle">Welcome back! View your request summary here.</p>
+            </div>
+
+            <div class="header-actions">
+                <button class="bell-btn" type="button" onclick="openReminderModal()" title="Reminders">
+                    <i class="fa-solid fa-bell"></i>
+                    <span id="reminderBadge" class="reminder-badge">0</span>
+                </button>
+
+                <div class="user-profile-card" onclick="openProfileCard(event)">
+                    <div class="profile-info">
+                        <span class="user-name" id="studentName">Student</span>
+                        <span class="user-id" id="studentId">Student ID</span>
+                    </div>
+                    <div class="user-avatar" id="userInitial">S</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dashboard section -->
+        <section id="dashboardSection">
+            <div class="stats-grid">
+                <div class="stat-card card-total">
+                    <div class="stat-icon">
+                        <dotlottie-wc
+                            src="https://lottie.host/18d9adb3-f267-49a5-9460-871688368c05/DrrrY5m7x7.lottie"
+                            style="width: 60px; height: 60px"
+                            autoplay
+                            loop
+                        ></dotlottie-wc>
+                    </div>
+                    <div>
+                        <div class="stat-val counter" id="totalCount" data-target="0">00</div>
+                        <div class="stat-label">Total Requests</div>
+                    </div>
+                </div>
+
+                <div class="stat-card card-approved">
+                    <div class="stat-icon">
+                        <dotlottie-wc
+                            src="https://lottie.host/58a2824f-7b40-4856-942b-3960faa89a20/MIbr0DRH6i.lottie"
+                            style="width: 60px; height: 60px"
+                            autoplay
+                            loop
+                        ></dotlottie-wc>
+                    </div>
+                    <div>
+                        <div class="stat-val counter" id="approvedCount" data-target="0">00</div>
+                        <div class="stat-label">Requests Approved</div>
+                    </div>
+                </div>
+
+                <div class="stat-card card-pending">
+                    <div class="stat-icon">
+                        <dotlottie-wc
+                            src="https://lottie.host/d6b8e14e-296b-438c-8021-45f302ff9be0/T0wF6Cjttt.lottie"
+                            style="width: 60px; height: 60px"
+                            autoplay
+                            loop
+                        ></dotlottie-wc>
+                    </div>
+                    <div>
+                        <div class="stat-val counter" id="pendingCount" data-target="0">00</div>
+                        <div class="stat-label">Requests Pending</div>
+                    </div>
+                </div>
+
+                <div class="stat-card card-cert">
+                    <div class="stat-icon">
+                        <dotlottie-wc
+                            src="https://lottie.host/36132b7c-fc6c-4c8f-9e07-b34f5fcd7942/LKdksCDuRP.lottie"
+                            style="width: 60px; height: 60px"
+                            autoplay
+                            loop
+                        ></dotlottie-wc>
+                    </div>
+                    <div>
+                        <div class="stat-val counter" id="certificateCount" data-target="0">00</div>
+                        <div class="stat-label">Pending Certificates</div>
+                    </div>
                 </div>
             </div>
 
-            <div class="menu-title">MAIN MENU</div>
-           <nav class="nav-menu">
-    <a href="#" class="nav-item active" data-page="dashboard" onclick="showDashboard(event)">Dashboard</a>
-    <a href="#" class="nav-item" data-page="permission" onclick="loadPage(event, 'permission.html', 'Apply for Permission')">Apply for Permission</a>
-    <a href="#" class="nav-item" data-page="request" onclick="loadPage(event, 'request.html', 'My Requests')">My Requests</a>
-    <a href="#" class="nav-item" data-page="certificate" onclick="loadPage(event, 'certificate.html', 'Upload Certificate')">Upload Certificate</a>
-    <a href="#" class="nav-item">Reminders</a>
-</nav>
+            <section class="content-card">
+                <div class="card-header">
+                    <h2>Student Dashboard</h2>
+                </div>
+                <p class="dashboard-note">
+                    Use the left menu to apply for permission, check your requests, upload certificates, and view reminder notifications.
+                </p>
+            </section>
+        </section>
 
-            <div class="menu-title">ACCOUNT</div>
-            <nav class="nav-menu">
-                <a href="#" class="nav-item">Profile</a>
-                <a href="#" class="nav-item" onclick="logout()">Logout</a>
-            </nav>
-        </aside>
+        <!-- iframe section -->
+        <section id="iframeSection" class="iframe-section hidden">
+            <div class="frame-card">
+                <iframe id="contentFrame" src="" title="Student Content"></iframe>
+            </div>
+        </section>
+    </main>
 
-        <!-- Right Content -->
-        <main class="main-content">
-            <header class="topbar">
+    <!-- Reminder Modal -->
+    <div id="reminderModal" class="modal-overlay hidden">
+        <div class="modal-card">
+            <div class="modal-header">
                 <div>
-                    <h1 id="pageTitle">Dashboard</h1>
-                    <p id="pageSubtitle">Welcome back! View your request summary here.</p>
+                    <h2>Reminders</h2>
+                    <p>Important notifications about pending certificate uploads.</p>
+                </div>
+                <button type="button" class="modal-close-btn" onclick="closeReminderModal()">×</button>
+            </div>
+
+            <div id="reminderList" class="modal-body">
+                <div class="empty-state">Loading reminders...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Modal -->
+    <div id="profileModal" class="modal-overlay hidden">
+        <div class="profile-modal-card">
+            <div class="modal-header">
+                <div>
+                    <h2>Profile</h2>
+                    <p>Your student account information.</p>
+                </div>
+                <button type="button" class="modal-close-btn" onclick="closeProfileCard()">×</button>
+            </div>
+
+            <div class="profile-body">
+                <div class="profile-avatar-large" id="profileAvatarLarge">S</div>
+
+                <div class="profile-row">
+                    <span class="profile-label">Name</span>
+                    <span class="profile-value" id="profileName">Student</span>
                 </div>
 
-                <div class="user-box">
-                    <div class="user-avatar" id="userInitial">S</div>
-                    <div>
-                        <div class="user-name" id="studentName">Student</div>
-                        <div class="user-role">Student</div>
-                    </div>
+                <div class="profile-row">
+                    <span class="profile-label">User ID</span>
+                    <span class="profile-value" id="profileUserId">-</span>
                 </div>
-            </header>
 
-            <!-- Dashboard Section -->
-            <section id="dashboardSection">
-                <section class="stats-grid">
-                    <div class="stat-card green">
-                        <div class="stat-icon">✔</div>
-                        <div>
-                            <h3 id="approvedCount">0</h3>
-                            <p>Requests Approved</p>
-                        </div>
-                    </div>
-
-                    <div class="stat-card orange">
-                        <div class="stat-icon">⬆</div>
-                        <div>
-                            <h3 id="certificateCount">0</h3>
-                            <p>Pending Certificate Upload</p>
-                        </div>
-                    </div>
-
-                    <div class="stat-card blue">
-                        <div class="stat-icon">⏳</div>
-                        <div>
-                            <h3 id="pendingCount">0</h3>
-                            <p>Requests Pending</p>
-                        </div>
-                    </div>
-
-                    <div class="stat-card purple">
-                        <div class="stat-icon">📄</div>
-                        <div>
-                            <h3 id="totalCount">0</h3>
-                            <p>Total Requests</p>
-                        </div>
-                    </div>
-                </section>
-
-                <section class="content-card">
-                    <div class="card-header">
-                        <h2>Student Dashboard</h2>
-                    </div>
-                    <p class="dashboard-note">
-                        Use the left menu to apply for permission, view your requests, and upload certificates.
-                    </p>
-                </section>
-            </section>
-
-            <!-- Iframe Section -->
-            <section id="iframeSection" class="iframe-section hidden">
-                <div class="frame-card">
-                    <iframe id="contentFrame" src="" title="Student Content"></iframe>
+                <div class="profile-row">
+                    <span class="profile-label">Role</span>
+                    <span class="profile-value" id="profileRole">STUDENT</span>
                 </div>
-            </section>
-        </main>
+            </div>
+        </div>
     </div>
 
     <script src="js/student.js"></script>
 </body>
 </html>
-
