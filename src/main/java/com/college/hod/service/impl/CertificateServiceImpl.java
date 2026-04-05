@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import jakarta.annotation.PostConstruct;
 import java.io.IOException;
 import java.nio.file.*;
 import java.time.LocalDate;
@@ -41,8 +42,21 @@ public class CertificateServiceImpl implements CertificateService {
     @Autowired
     private RequestRepository requestRepository;
 
-    @Value("${file.upload-dir}")
+    @Value("${file.upload-dir:uploads}")
     private String uploadDir;
+
+    private Path uploadPath;
+
+    @PostConstruct
+    public void init() {
+        try {
+            uploadPath = Paths.get(uploadDir).toAbsolutePath().normalize();
+            Files.createDirectories(uploadPath);
+            System.out.println("📁 Upload directory: " + uploadPath);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to initialize upload directory", e);
+        }
+    }
 
     @Override
     public Certificate uploadCertificate(Long requestId, MultipartFile file) {
@@ -77,9 +91,6 @@ public class CertificateServiceImpl implements CertificateService {
         }
 
         try {
-            Path uploadPath = Paths.get(uploadDir).toAbsolutePath().normalize();
-            Files.createDirectories(uploadPath);
-
             Certificate cert = certificateRepository.findByRequestId(requestId)
                     .orElseGet(Certificate::new);
 
@@ -187,13 +198,9 @@ public class CertificateServiceImpl implements CertificateService {
     private void deletePhysicalFile(String fileUrl) {
         try {
             String fileName = extractFileNameFromUrl(fileUrl);
-            if (fileName == null || fileName.isBlank()) {
-                return;
-            }
+            if (fileName == null || fileName.isBlank()) return;
 
-            Path uploadPath = Paths.get(uploadDir).toAbsolutePath().normalize();
             Path filePath = uploadPath.resolve(fileName).normalize();
-
             Files.deleteIfExists(filePath);
 
         } catch (Exception e) {
@@ -202,9 +209,7 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     private String extractFileNameFromUrl(String fileUrl) {
-        if (fileUrl == null || fileUrl.isBlank()) {
-            return null;
-        }
+        if (fileUrl == null || fileUrl.isBlank()) return null;
 
         if (fileUrl.startsWith("/uploads/")) {
             return fileUrl.substring("/uploads/".length());
