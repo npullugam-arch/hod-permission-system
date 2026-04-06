@@ -12,7 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -22,6 +25,8 @@ import java.util.regex.Pattern;
 
 @Service
 public class NotificationServiceImpl implements NotificationService {
+
+    private static final Logger logger = Logger.getLogger(NotificationServiceImpl.class.getName());
 
     private static final Set<String> CERTIFICATE_REQUIRED_REASONS = Set.of(
             "HACKATHON",
@@ -124,8 +129,10 @@ public class NotificationServiceImpl implements NotificationService {
         String subject = "Reminder for Certificate Submission";
         String body = buildReminderMessage(student, request);
 
-        sendEmail(email, subject, body);
+        // Send email asynchronously so it doesn't block the reminder
+        sendEmailAsync(email, subject, body);
 
+        // Save reminder notification in database
         sendNotification(
                 user,
                 "Reminder: Upload certificate before " + request.getCertificateDueDate(),
@@ -150,6 +157,30 @@ public class NotificationServiceImpl implements NotificationService {
 
         notification.setRead(true);
         return notificationRepository.save(notification);
+    }
+
+    @Async
+    private void sendEmailAsync(String to, String subject, String body) {
+        try {
+            if (fromEmail == null || fromEmail.isBlank()) {
+                logger.log(Level.WARNING, "spring.mail.username is missing in application.properties. Email to " + to + " will not be sent.");
+                return;
+            }
+
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom(fromEmail);
+            message.setTo(to);
+            message.setSubject(subject);
+            message.setText(body);
+
+            mailSender.send(message);
+            logger.log(Level.INFO, "✅ Email sent successfully to: " + to);
+
+        } catch (Exception e) {
+            // Log email failure but don't throw exception
+            // This allows reminders to work even if email sending fails
+            logger.log(Level.WARNING, "❌ Email sending failed to " + to + ": " + e.getMessage(), e);
+        }
     }
 
     private void sendEmail(String to, String subject, String body) {
