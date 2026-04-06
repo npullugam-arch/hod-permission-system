@@ -71,10 +71,13 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public void sendReminderForRequest(Long requestId) {
+        logger.info("Starting reminder process for request ID: " + requestId);
+
         Request request = requestRepository.findById(requestId)
                 .orElseThrow(() -> new RuntimeException("Request not found with id: " + requestId));
 
         LocalDate today = LocalDate.now();
+        logger.info("Current date: " + today + ", Request status: " + request.getStatus());
 
         if (request.getStatus() != RequestStatus.APPROVED) {
             throw new RuntimeException("Reminder can be sent only for approved requests");
@@ -117,6 +120,7 @@ public class NotificationServiceImpl implements NotificationService {
         }
 
         String email = getStudentEmail(student, user);
+        logger.info("Student email found: " + (email != null ? email : "null"));
 
         if (email == null || email.isBlank()) {
             throw new RuntimeException("Student email not found");
@@ -129,6 +133,8 @@ public class NotificationServiceImpl implements NotificationService {
         String subject = "Reminder for Certificate Submission";
         String body = buildReminderMessage(student, request);
 
+        logger.info("Sending reminder email to student: " + student.getName() + " (" + email + ")");
+
         // Send email asynchronously so it doesn't block the reminder
         sendEmailAsync(email, subject, body);
 
@@ -138,6 +144,8 @@ public class NotificationServiceImpl implements NotificationService {
                 "Reminder: Upload certificate before " + request.getCertificateDueDate(),
                 request.getId()
         );
+
+        logger.info("Reminder process completed successfully for request ID: " + requestId);
     }
 
     @Override
@@ -159,13 +167,20 @@ public class NotificationServiceImpl implements NotificationService {
         return notificationRepository.save(notification);
     }
 
+    private boolean isEmailConfigured() {
+        return fromEmail != null && !fromEmail.isBlank();
+    }
+
     @Async
     private void sendEmailAsync(String to, String subject, String body) {
         try {
+            // Check if email configuration is available
             if (fromEmail == null || fromEmail.isBlank()) {
-                logger.log(Level.WARNING, "spring.mail.username is missing in application.properties. Email to " + to + " will not be sent.");
+                logger.warning("Email configuration missing: spring.mail.username is not set. Skipping email to: " + to);
                 return;
             }
+
+            logger.info("Attempting to send email to: " + to + " with subject: " + subject);
 
             SimpleMailMessage message = new SimpleMailMessage();
             message.setFrom(fromEmail);
@@ -174,12 +189,18 @@ public class NotificationServiceImpl implements NotificationService {
             message.setText(body);
 
             mailSender.send(message);
-            logger.log(Level.INFO, "✅ Email sent successfully to: " + to);
+            logger.info("✅ Email sent successfully to: " + to);
 
         } catch (Exception e) {
-            // Log email failure but don't throw exception
-            // This allows reminders to work even if email sending fails
-            logger.log(Level.WARNING, "❌ Email sending failed to " + to + ": " + e.getMessage(), e);
+            // Log detailed error information
+            logger.log(Level.SEVERE, "❌ Email sending failed to " + to + ". Subject: " + subject, e);
+
+            // Log specific error details for debugging
+            if (e.getCause() != null) {
+                logger.log(Level.SEVERE, "Root cause: " + e.getCause().getMessage(), e.getCause());
+            }
+
+            // Don't throw exception - let the reminder work even if email fails
         }
     }
 
